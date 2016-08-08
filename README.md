@@ -7,19 +7,19 @@ Simply notepad based on ruby
 2. Можно сохранить ссилку, добавить к ней описание
 3. Поставить таски
 
-1. Поля обьекта Memo:
-@text --> Post
-@created_at --> Post
+1. Поля обьекта Memo:\n
+@text --> Post\n
+@created_at --> Post\n
 
-2. Поля обьекта Link:
-@url
-@description (@text) --> Post
-@created_at --> Post
+2. Поля обьекта Link:\n
+@url\n
+@description (@text) --> Post\n
+@created_at --> Post\n
 
-3. Поля обьекта Task:
-@created_at --> Post
-@due_date
-@text --> Post
+3. Поля обьекта Task:\n
+@created_at --> Post\n
+@due_date\n
+@text --> Post\n
 
 Class Post
 @text
