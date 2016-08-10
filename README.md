@@ -24,3 +24,8 @@ Simply notepad based on ruby
 Class Post
 @text
 @created_at
+
+
+Для того, чтобы выбрать тип заметки мы напишем два статических метода
+Post.post_types - будет возвращать список типов постов - memo, link, task
+Post.create(type) - будет создавать пост нужного типа
