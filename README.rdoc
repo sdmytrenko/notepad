@@ -43,3 +43,11 @@ Simply notepad based on ruby
 Post.post_types - будет возвращать список типов постов - memo, link, task
 
 Post.create(type) - будет создавать пост нужного типа
+
+== Работа с базой данных SQLite
+
+                 posts
+rowid   | type | created_at | text |  url |due_date
+--------|------|------------|------|------|---------
+INTEGER | TEXT |  DATATIME  | TEXT | TEXT |DATATIME
+

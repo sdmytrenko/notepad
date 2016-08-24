@@ -24,4 +24,12 @@ class Memo < Post
 
 		return @text.unshift(time_string)
 	end
+
+	def to_db_hash
+		return super.merge(
+			{
+				'text' => @text.join('\n\r') # массив строк делаем одной большой строкой
+			}
+		)
+	end
 end

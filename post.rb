@@ -1,14 +1,18 @@
 # Базовый родительский класс
 # Методы родительского класса, для которых не описана реализация принято называть  абстрактними  
+require 'sqlite3'
 
 class Post
 
+	@@SQLITE_DB_FILE = 'notepad_base.sqlite' # переменная класса, хранит название базы данных
+
 	def self.post_types #self.имя_метода - обьявление статического метода класса
-		[Memo, Link, Task]
+		# переводим на исп. асоц. массива
+		{'Memo' => Memo, 'Link' => Link, 'Task' => Task}
 	end
 
-	def self.create(type_index) # параметром будет индекс с массива [Memo, Link, Task]
-		return post_types[type_index].new
+	def self.create(type) # параметром будет индекс с массива [Memo, Link, Task]
+		return post_types[type].new
 	end
 
 	def initialize
@@ -49,4 +53,35 @@ class Post
 
 		return current_path + "/" + file_name
 	end
+
+	def save_to_db
+		db = SQLite3::Database.open(@@SQLITE_DB_FILE) # Открываем соединение к базе данных
+		db.results_as_hash = true # чтобы результаты возвращались в виде асоциатывного массива
+
+		db.execute(
+			"INSERT INTO posts (" +
+				to_db_hash.keys.join(',') +
+				")" +
+				"VALUES (" +
+					('?,'*to_db_hash.keys.size).chomp(',') + # (?,?,?,?,?)
+				")",
+				to_db_hash.values
+			)
+		# Если все сработало, появляется новая запись в базе. Узнаем ее идентификатор
+		insert_row_id = db.last_insert_row_id
+
+		db.close
+
+		return insert_row_id
+	end
+
+		def to_db_hash
+			# абстрактный метод, который должен возвращать асоциативный массив 
+			# со всеми полями данной записи где ключи - назвы полей
+			{
+				'type' => self.class.name,
+				'created_at' => @created_at.to_s
+			}
+		end
+
 end

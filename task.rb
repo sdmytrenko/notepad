@@ -26,4 +26,16 @@ class Task < Post
 
 		return [deadline, @text, time_string]
 	end
+
+	def to_db_hash
+		# super - вызываю такой же метод но у родительского класса
+		# {'a' => 1}.merge({'b' => 2}) == {'a' => 1, 'b' => 2}
+		return super.merge(
+						{
+							'text' => @text,
+							'due_date' => @due_date.to_s
+						}
+		)
+	end
+
 end
