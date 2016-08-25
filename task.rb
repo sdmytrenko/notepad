@@ -38,4 +38,11 @@ class Task < Post
 		)
 	end
 
+	def load_data(data_hash)
+		super(data_hash) # сперва дергаем родительский метод для инициализации общих полей
+
+		# теперь прописываем свое специфичное поле
+		@due_date = Data.parce(data_hash['due_date'])
+		# поле парсим с базы по ключу
+	end
 end

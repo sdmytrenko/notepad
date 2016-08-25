@@ -15,6 +15,60 @@ class Post
 		return post_types[type].new
 	end
 
+	def self.find(limit, type, id) #статический метод для поиска
+
+		db = SQLite3::Database.open(@@SQLITE_DB_FILE)
+
+		# 1. конкретная запись
+		if !id.nil? # если параметр переданый в метод не нулевой
+			db.results_as_hash = true
+
+			result = db.execute("SELECT * FROM posts WHERE rowid = ?", id)
+			# запрос дге плейсхолдер, второй параметр id который будет поставлен на место ? при обращении в базу
+
+			result = result[0] if result.is_a? Array 
+			# если результат массив то мы в result будем хранить первый елемент массива
+			db.close
+
+			if result.empty?
+				puts "Такой id #{id} не найден в базе :("
+				return nil
+			else
+				post = create(result['type']) # Post.create не пишем, бо create стат. метод того же класса
+				# создаем новый екземпляр дочернего класса post и заполнить его в соотв.
+				# с тем какие данные мы прочитали из базы
+
+				post.load_data(result) # параметром будет асоциативный массив
+				return post
+			end
+		else
+			# 2. вернуть таблицу записей
+			db.results_as_hash = false
+
+			# формируем запрос в базу с нужными условиями
+			query = "SELECT rowid, * FROM posts "
+			query += "WHERE type = :type " unless type.nil? # добавить условие если тип не 0
+			# :type - это плейсхолдер вместо ?
+			query += "ORDER by rowid DESC" # достаем самые свежие данные
+			query += "LIMIT :limit " unless limit.nil? # добавляем кол-во записей
+
+			statement = db.prepare(query) # обьект готовый к выполнению
+
+			statement.bind_param('type', type) unless type.nil?
+			# с помощью метода bind_param передаем нашему подготовленому выражению то что было в type и
+			# указываю в качестве 1го параметра имя плейсхолдера
+			statement.bind_param('limit', limit) unless limit.nil?
+
+			result = statement.execute! # получаем результат
+
+			statement.close
+			db.close
+
+			return result
+		end
+	end
+
+
 	def initialize
 		@created_at = Time.now #инициализация по текущему пользователю
 		@text = nil #пустое, потому что каждый наследованый класс заполняет его своими данными
@@ -75,13 +129,18 @@ class Post
 		return insert_row_id
 	end
 
-		def to_db_hash
-			# абстрактный метод, который должен возвращать асоциативный массив 
-			# со всеми полями данной записи где ключи - назвы полей
-			{
-				'type' => self.class.name,
-				'created_at' => @created_at.to_s
-			}
-		end
+	def to_db_hash
+		# абстрактный метод, который должен возвращать асоциативный массив 
+		# со всеми полями данной записи где ключи - назвы полей
+		{
+			'type' => self.class.name,
+			'created_at' => @created_at.to_s
+		}
+	end
 
+	# получает на вход хэш массив данных и должен заполнить свои поля
+	def load_data(data_hash)
+		@created_at = Time.parse(data_hash['created_at'])
+		# поле парсим с базы по ключу
+	end
 end

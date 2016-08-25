@@ -31,4 +31,11 @@ class Link < Post
 		)
 	end
 
+	def load_data(data_hash)
+		super(data_hash) # сперва дергаем родительский метод для инициализации общих полей
+
+		# теперь прописываем свое специфичное поле
+		@url = data_hash['url']
+		# поле парсим с базы по ключу
+	end
 end
